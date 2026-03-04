@@ -18,6 +18,8 @@ export default async function AgendaPage() {
 
     const data = await getAgendamentos();
 
+    const isAdmin = perfil.role === "admin_p5" || perfil.role === "admin_central";
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
@@ -26,12 +28,14 @@ export default async function AgendaPage() {
                     <p className="text-muted-foreground mt-1">Gerencie e visualize seus agendamentos.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link href="/dashboard/agendar?encaixe=true">
-                        <Button className="bg-amber-400 hover:bg-amber-500 text-black font-semibold">
-                            <Zap className="mr-2 h-4 w-4" />
-                            Encaixe
-                        </Button>
-                    </Link>
+                    {isAdmin && (
+                        <Link href="/dashboard/agendar?encaixe=true">
+                            <Button className="bg-amber-400 hover:bg-amber-500 text-black font-semibold">
+                                <Zap className="mr-2 h-4 w-4" />
+                                Encaixe
+                            </Button>
+                        </Link>
+                    )}
                     <Link href="/dashboard/agendar">
                         <Button className="bg-pm-blue hover:bg-blue-800 text-white">
                             <Plus className="mr-2 h-4 w-4" />
