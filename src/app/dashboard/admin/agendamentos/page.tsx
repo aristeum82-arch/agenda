@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ClipboardList } from "lucide-react";
 import { DialogCancelarPeriodo } from "@/components/dashboard/admin/dialog-cancelar-periodo";
 import { ListaBloqueios } from "@/components/dashboard/admin/lista-bloqueios";
 import { getBloqueiosAtivos } from "@/server/actions/cancelamento-massa";
 import { DialogRelatorio } from "@/components/dashboard/admin/dialog-relatorio";
+import { AdminAgendamentoAcoes } from "@/components/dashboard/admin/admin-agendamento-acoes";
 
 export default async function AdminAgendamentosPage() {
     const meuPerfil = await getPerfilUsuario();
@@ -64,6 +65,7 @@ export default async function AdminAgendamentosPage() {
                                         <TableHead>Motivo</TableHead>
                                         <TableHead>Serviço</TableHead>
                                         <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Ações</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -86,7 +88,7 @@ export default async function AdminAgendamentosPage() {
                                                 )}
                                             </TableCell>
                                             <TableCell className="font-medium">
-                                                {format(new Date(a.dataHora), "dd/MM/yyyy HH:mm")}
+                                                {formatInTimeZone(new Date(a.dataHora), 'America/Sao_Paulo', "dd/MM/yyyy HH:mm")}
                                             </TableCell>
                                             <TableCell>{a.motivo}</TableCell>
                                             <TableCell>
@@ -102,6 +104,9 @@ export default async function AdminAgendamentosPage() {
                                                 }>
                                                     {a.status}
                                                 </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <AdminAgendamentoAcoes agendamentoId={a.id} status={a.status} />
                                             </TableCell>
                                         </TableRow>
                                     ))}

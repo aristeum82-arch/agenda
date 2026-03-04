@@ -162,6 +162,60 @@ export async function cancelarAgendamento(agendamentoId: string) {
     }
 }
 
+export async function adminCancelarAgendamento(agendamentoId: string) {
+    try {
+        const { userId } = await auth();
+        if (!userId) return { success: false, message: "Não autorizado" };
+
+        const usuarioLogado = await db.select().from(usuariosInfo).where(eq(usuariosInfo.id, userId)).get();
+        if (!usuarioLogado || usuarioLogado.role === "user") {
+            return { success: false, message: "Sem permissão" };
+        }
+
+        const agendamento = await db.select().from(agendamentos).where(eq(agendamentos.id, agendamentoId)).get();
+        if (!agendamento) return { success: false, message: "Agendamento não encontrado" };
+        if (agendamento.status !== "Agendado") return { success: false, message: "Só é possível cancelar agendamentos com status 'Agendado'" };
+
+        await db
+            .update(agendamentos)
+            .set({ status: "Cancelado" })
+            .where(eq(agendamentos.id, agendamentoId));
+
+        revalidatePath("/dashboard/admin/agendamentos");
+        return { success: true, message: "Agendamento cancelado pelo administrador" };
+    } catch (error) {
+        console.error(error);
+        return { success: false, message: "Erro ao cancelar agendamento" };
+    }
+}
+
+export async function reverterAgendamento(agendamentoId: string) {
+    try {
+        const { userId } = await auth();
+        if (!userId) return { success: false, message: "Não autorizado" };
+
+        const usuarioLogado = await db.select().from(usuariosInfo).where(eq(usuariosInfo.id, userId)).get();
+        if (!usuarioLogado || usuarioLogado.role === "user") {
+            return { success: false, message: "Sem permissão" };
+        }
+
+        const agendamento = await db.select().from(agendamentos).where(eq(agendamentos.id, agendamentoId)).get();
+        if (!agendamento) return { success: false, message: "Agendamento não encontrado" };
+        if (agendamento.status !== "Cancelado") return { success: false, message: "Apenas agendamentos cancelados podem ser revertidos" };
+
+        await db
+            .update(agendamentos)
+            .set({ status: "Agendado" })
+            .where(eq(agendamentos.id, agendamentoId));
+
+        revalidatePath("/dashboard/admin/agendamentos");
+        return { success: true, message: "Agendamento revertido com sucesso" };
+    } catch (error) {
+        console.error(error);
+        return { success: false, message: "Erro ao reverter agendamento" };
+    }
+}
+
 export type AgendamentoComPerfil = {
     id: string;
     dataHora: Date;

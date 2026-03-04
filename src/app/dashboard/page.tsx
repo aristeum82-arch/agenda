@@ -5,7 +5,7 @@ import { CalendarCheck2, CheckCircle2, XCircle, CalendarClock } from "lucide-rea
 import { getPerfilUsuario } from "@/server/actions/perfil";
 import { redirect } from "next/navigation";
 import { getDashboardStats, getAgendamentosHoje } from "@/server/actions/dashboard";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 import { ConfirmarPresencaBtn } from "@/components/dashboard/confirmar-presenca-btn";
 
@@ -54,7 +54,7 @@ export default async function DashboardPage() {
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-pm-blue">Painel Geral</h1>
                 <p className="text-muted-foreground mt-1">
-                    {format(new Date(), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                    {formatInTimeZone(new Date(), 'America/Sao_Paulo', "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
                 </p>
             </div>
 
@@ -104,7 +104,7 @@ export default async function DashboardPage() {
                                     {agendamentosHoje.map((ag) => (
                                         <TableRow key={ag.id} className="hover:bg-slate-50/50">
                                             <TableCell className="font-mono font-semibold whitespace-nowrap">
-                                                {format(new Date(ag.dataHora), "HH:mm")}
+                                                {formatInTimeZone(new Date(ag.dataHora), 'America/Sao_Paulo', "HH:mm")}
                                             </TableCell>
                                             <TableCell>
                                                 {ag.postoGraduacao && ag.nomeGuerra ? (

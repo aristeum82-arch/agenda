@@ -1,19 +1,24 @@
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { MobileNav } from "@/components/dashboard/mobile-nav";
+import { Suspense } from "react";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Sidebar Desktop */}
             <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 z-50">
-                <Sidebar />
+                <Suspense fallback={<div className="p-6 text-white bg-pm-blue h-full">Carregando...</div>}>
+                    <Sidebar />
+                </Suspense>
             </aside>
 
             {/* Mobile Nav */}
             <div className="md:hidden sticky top-0 z-50">
                 <MobileNav>
-                    <Sidebar />
+                    <Suspense fallback={<div className="p-6 text-white">Carregando...</div>}>
+                        <Sidebar />
+                    </Suspense>
                 </MobileNav>
             </div>
 

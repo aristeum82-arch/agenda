@@ -20,7 +20,9 @@ export async function Sidebar() {
     const perfil = await getPerfilUsuario();
     const isAdmin = perfil?.role === "admin_p5" || perfil?.role === "admin_central";
 
-    const items = isAdmin ? [...userItems, ...adminItems] : userItems;
+    // Ocultando os itens de admin conforme solicitado (Guia item 7)
+    // const items = isAdmin ? [...userItems, ...adminItems] : userItems;
+    const items = userItems;
 
     return (
         <div className="flex flex-col h-full bg-pm-blue text-white shadow-xl">

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { getAgendamentos } from "@/server/actions/agendamentos";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { getPerfilUsuario } from "@/server/actions/perfil";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -68,7 +68,7 @@ export default async function AgendaPage() {
                                         <TableRow key={troca.id} className="hover:bg-slate-50/50">
                                             <TableCell className="font-mono text-xs font-semibold">{troca.id}</TableCell>
                                             <TableCell className="font-medium whitespace-nowrap">
-                                                {format(new Date(troca.dataHora), "dd/MM/yyyy HH:mm")}
+                                                {formatInTimeZone(new Date(troca.dataHora), 'America/Sao_Paulo', "dd/MM/yyyy HH:mm")}
                                             </TableCell>
                                             <TableCell>
                                                 {troca.postoGraduacao && troca.nomeGuerra ? (

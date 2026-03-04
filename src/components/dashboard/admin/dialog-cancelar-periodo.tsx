@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { cancelarPeriodo } from "@/server/actions/cancelamento-massa";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Calendar as CalendarIcon, Ban } from "lucide-react";
@@ -39,6 +39,7 @@ export function DialogCancelarPeriodo() {
     const [isPending, startTransition] = useTransition();
 
     const [date, setDate] = useState<Date>();
+    const [popoverOpen, setPopoverOpen] = useState(false);
     const [periodType, setPeriodType] = useState("all_day");
     const [startTime, setStartTime] = useState("08:00");
     const [endTime, setEndTime] = useState("18:00");
@@ -119,21 +120,24 @@ export function DialogCancelarPeriodo() {
                 <div className="space-y-4 py-2">
                     <div className="space-y-2">
                         <Label>Data alvo</Label>
-                        <Popover>
+                        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                             <PopoverTrigger asChild>
                                 <Button
                                     variant="outline"
                                     className={`w-full justify-start text-left font-normal ${!date && "text-muted-foreground"}`}
                                 >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(date, "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
+                                    {date ? formatInTimeZone(date, 'America/Sao_Paulo', "PPP", { locale: ptBR }) : <span>Selecione uma data</span>}
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                     mode="single"
                                     selected={date}
-                                    onSelect={setDate}
+                                    onSelect={(d) => {
+                                        setDate(d);
+                                        if (d) setPopoverOpen(false);
+                                    }}
                                     initialFocus
                                     disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
                                 />

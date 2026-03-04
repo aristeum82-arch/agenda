@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { removerBloqueio } from "@/server/actions/cancelamento-massa";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
@@ -60,9 +60,9 @@ export function ListaBloqueios({ bloqueios }: { bloqueios: Bloqueio[] }) {
                             {bloqueios.map((b) => (
                                 <TableRow key={b.id} className="hover:bg-slate-50/50">
                                     <TableCell className="font-medium whitespace-nowrap">
-                                        {format(new Date(b.inicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                                        {formatInTimeZone(new Date(b.inicio), 'America/Sao_Paulo', "dd/MM/yyyy HH:mm", { locale: ptBR })}
                                         {" - "}
-                                        {format(new Date(b.fim), "HH:mm")}
+                                        {formatInTimeZone(new Date(b.fim), 'America/Sao_Paulo', "HH:mm")}
                                     </TableCell>
                                     <TableCell>{b.motivo}</TableCell>
                                     <TableCell className="text-right">

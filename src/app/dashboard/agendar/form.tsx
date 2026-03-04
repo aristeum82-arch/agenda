@@ -29,7 +29,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon, Clock, FileText } from "lucide-react";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { getHorariosDisponiveis } from "@/server/actions/horarios";
@@ -135,7 +135,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                         <p className="text-muted-foreground">
                             Seu agendamento foi confirmado para o dia{" "}
                             <strong className="text-slate-900">
-                                {format(new Date(form.getValues("horarioISO")!), "dd/MM/yyyy 'às' HH:mm")}
+                                {formatInTimeZone(new Date(form.getValues("horarioISO")!), 'America/Sao_Paulo', "dd/MM/yyyy 'às' HH:mm")}
                             </strong>
                             .
                         </p>
@@ -244,7 +244,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel>Qual o dia deseja comparecer?</FormLabel>
-                                                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                                                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button
@@ -255,7 +255,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                                                 )}
                                                             >
                                                                 {field.value ? (
-                                                                    format(field.value, "PPP", { locale: ptBR })
+                                                                    formatInTimeZone(field.value, 'America/Sao_Paulo', "PPP", { locale: ptBR })
                                                                 ) : (
                                                                     <span>Escolha uma data no calendário</span>
                                                                 )}
@@ -264,20 +264,20 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                                         </FormControl>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar
-                                                                mode="single"
-                                                                selected={field.value}
-                                                                onSelect={(date) => {
-                                                                    field.onChange(date);
-                                                                    if (date) {
-                                                                        buscarSlots(date);
-                                                                        setPopoverOpen(false); // fecha o popover ao selecionar
-                                                                    }
-                                                                }}
-                                                                disabled={isDateDisabled}
-                                                                initialFocus
-                                                                locale={ptBR}
-                                                            />
+                                                        <Calendar
+                                                            mode="single"
+                                                            selected={field.value}
+                                                            onSelect={(date) => {
+                                                                field.onChange(date);
+                                                                if (date) {
+                                                                    buscarSlots(date);
+                                                                    setPopoverOpen(false); // fecha o popover ao selecionar
+                                                                }
+                                                            }}
+                                                            disabled={isDateDisabled}
+                                                            initialFocus
+                                                            locale={ptBR}
+                                                        />
                                                     </PopoverContent>
                                                 </Popover>
                                                 <FormMessage />
@@ -305,7 +305,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                         <p className="text-sm font-semibold text-pm-blue mb-1">Resumo OPM</p>
                                         <p className="text-slate-700">{perfil.postoGraduacao} {perfil.nomeGuerra} - {perfil.re} ({perfil.opm})</p>
                                         <p className="text-slate-700 mt-1">Motivo: <span className="font-medium">{form.getValues('motivo')} (Serviço: {form.getValues('porIntermedioServico')})</span></p>
-                                        <p className="text-slate-700 mt-1">Data: <span className="font-medium">{dataEscolhida && format(dataEscolhida, 'dd/MM/yyyy')}</span></p>
+                                        <p className="text-slate-700 mt-1">Data: <span className="font-medium">{dataEscolhida && formatInTimeZone(dataEscolhida, 'America/Sao_Paulo', 'dd/MM/yyyy')}</span></p>
                                     </div>
 
                                     <FormField
@@ -335,7 +335,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                                                     >
                                                                         <div className="flex items-center justify-center gap-1.5 mb-1">
                                                                             <Clock className="w-3.5 h-3.5" />
-                                                                            <span className="font-medium">{format(slot, "HH:mm")}</span>
+                                                                            <span className="font-medium">{formatInTimeZone(slot, 'America/Sao_Paulo', "HH:mm")}</span>
                                                                         </div>
                                                                     </div>
                                                                 );
