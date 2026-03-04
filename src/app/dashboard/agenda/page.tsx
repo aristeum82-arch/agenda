@@ -29,7 +29,7 @@ export default async function AgendaPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     {isAdmin && (
-                        <Link href="/dashboard/agendar?encaixe=true">
+                        <Link href="/dashboard/encaixe">
                             <Button className="bg-amber-400 hover:bg-amber-500 text-black font-semibold">
                                 <Zap className="mr-2 h-4 w-4" />
                                 Encaixe

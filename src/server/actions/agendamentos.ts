@@ -216,6 +216,45 @@ export async function reverterAgendamento(agendamentoId: string) {
     }
 }
 
+export async function criarAgendamentoParaTerceiro(data: {
+    solicitanteId: string;
+    dataHora: Date;
+    motivo: string;
+    porIntermedioServico: boolean;
+    numeroOficioSei: string;
+}) {
+    try {
+        const { userId } = await auth();
+        if (!userId) return { success: false, message: "Não autorizado" };
+
+        const usuarioLogado = await db.select().from(usuariosInfo).where(eq(usuariosInfo.id, userId)).get();
+        if (!usuarioLogado || usuarioLogado.role === "user") {
+            return { success: false, message: "Sem permissão" };
+        }
+
+        const existente = await db.select().from(agendamentos).where(eq(agendamentos.id, data.numeroOficioSei)).get();
+        if (existente) return { success: false, message: "Número SEI já cadastrado" };
+
+        await db.insert(agendamentos).values({
+            id: data.numeroOficioSei,
+            solicitanteId: data.solicitanteId,
+            dataHora: data.dataHora,
+            motivo: data.motivo,
+            numeroOficioSei: data.numeroOficioSei,
+            porIntermedioServico: data.porIntermedioServico,
+            status: "Agendado",
+            createdAt: new Date(),
+        });
+
+        revalidatePath("/dashboard/agenda");
+        revalidatePath("/dashboard/admin/agendamentos");
+        return { success: true, protocolo: data.numeroOficioSei, message: "Encaixe registrado!" };
+    } catch (error) {
+        console.error(error);
+        return { success: false, message: "Erro ao criar encaixe" };
+    }
+}
+
 export type AgendamentoComPerfil = {
     id: string;
     dataHora: Date;

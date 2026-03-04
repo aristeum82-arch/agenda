@@ -20,9 +20,9 @@ export async function Sidebar() {
     const perfil = await getPerfilUsuario();
     const isAdmin = perfil?.role === "admin_p5" || perfil?.role === "admin_central";
 
-    // Ocultando os itens de admin conforme solicitado (Guia item 7)
-    // const items = isAdmin ? [...userItems, ...adminItems] : userItems;
-    const items = userItems;
+    // Admins veem os itens extras. A seção "Administração" como título é ocultada (Guia 11),
+    // mas os links individuais ficam visíveis.
+    const items = isAdmin ? [...userItems, ...adminItems] : userItems;
 
     return (
         <div className="flex flex-col h-full bg-pm-blue text-white shadow-xl">
