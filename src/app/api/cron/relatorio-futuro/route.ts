@@ -71,9 +71,10 @@ export async function GET(req: Request) {
 
             // Envia e-mail real via Resend
             if (admin.email) {
-                const listaFormatada = futuros.map(f =>
-                    `- ${f.postoGraduacao ?? ""} ${f.nomeGuerra ?? ""} | ${format(new Date(f.dataHora), "EEE dd/MM HH:mm", { locale: ptBR })} | ${f.motivo}`
-                ).join("\n");
+                const listaFormatada = futuros.map(f => {
+                    const dt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(f.dataHora));
+                    return `- ${f.postoGraduacao ?? ""} ${f.nomeGuerra ?? ""} | ${dt} | ${f.motivo}`;
+                }).join("\n");
 
                 await enviarEmail({
                     para: admin.email,

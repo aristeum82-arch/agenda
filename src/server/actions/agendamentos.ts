@@ -14,6 +14,7 @@ const agendamentoSchema = z.object({
     dataHora: z.date(),
     motivo: z.string().min(3, "Insira um motivo válido"),
     porIntermedioServico: z.boolean(),
+    numeroOficioSei: z.string().min(3, "Insira um número SEI válido"),
 });
 
 export async function criarAgendamento(data: z.infer<typeof agendamentoSchema>) {
@@ -24,14 +25,21 @@ export async function criarAgendamento(data: z.infer<typeof agendamentoSchema>) 
         const parsed = agendamentoSchema.safeParse(data);
         if (!parsed.success) return { success: false, message: "Dados inválidos" };
 
-        const { dataHora, motivo, porIntermedioServico } = parsed.data;
-        const protocolo = crypto.randomUUID().slice(0, 8).toUpperCase();
+        const { dataHora, motivo, porIntermedioServico, numeroOficioSei } = parsed.data;
+
+        // Verifica unicidade do SEI (id)
+        const existente = await db.select().from(agendamentos).where(eq(agendamentos.id, numeroOficioSei)).get();
+        if (existente) return { success: false, message: "Número SEI já cadastrado" };
+
+        // protocolo é o próprio SEI
+        const protocolo = numeroOficioSei;
 
         await db.insert(agendamentos).values({
             id: protocolo,
             solicitanteId: userId,
             dataHora,
             motivo,
+            numeroOficioSei: protocolo,
             porIntermedioServico,
             status: "Agendado",
             createdAt: new Date(),
@@ -46,7 +54,15 @@ export async function criarAgendamento(data: z.infer<typeof agendamentoSchema>) 
             .get();
 
         if (perfilUsuario?.email) {
-            const dataFormatada = format(dataHora, "EEEE, dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+            const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                weekday: 'long',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            }).format(new Date(dataHora));
             await enviarEmail({
                 para: perfilUsuario.email,
                 assunto: `Agendamento Confirmado - Protocolo ${protocolo}`,
@@ -61,20 +77,26 @@ export async function criarAgendamento(data: z.infer<typeof agendamentoSchema>) 
     }
 }
 
-export async function criarEncaixe(motivo: string, porIntermedioServico: boolean = false) {
+export async function criarEncaixe(motivo: string, porIntermedioServico: boolean = false, numeroOficioSei?: string) {
     try {
         const { userId } = await auth();
         if (!userId) return { success: false, message: "Não autorizado" };
 
         if (!motivo || motivo.length < 2) return { success: false, message: "Informe o motivo do encaixe" };
+        if (!numeroOficioSei || numeroOficioSei.trim().length < 3) return { success: false, message: "Informe um número SEI válido para o encaixe" };
 
-        const protocolo = "ENC-" + crypto.randomUUID().slice(0, 6).toUpperCase();
+        const protocolo = numeroOficioSei.trim();
+
+        // Verifica unicidade do SEI
+        const existente = await db.select().from(agendamentos).where(eq(agendamentos.id, protocolo)).get();
+        if (existente) return { success: false, message: "Número SEI já cadastrado" };
 
         await db.insert(agendamentos).values({
             id: protocolo,
             solicitanteId: userId,
             dataHora: new Date(),
             motivo,
+            numeroOficioSei: protocolo,
             porIntermedioServico,
             status: "Agendado",
             createdAt: new Date(),
@@ -89,10 +111,18 @@ export async function criarEncaixe(motivo: string, porIntermedioServico: boolean
         }).from(usuariosInfo).where(eq(usuariosInfo.id, userId)).get();
 
         if (perfilUsuario?.email) {
+            const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            }).format(new Date());
             await enviarEmail({
                 para: perfilUsuario.email,
                 assunto: `Encaixe Confirmado - Protocolo ${protocolo}`,
-                corpo: `Olá, ${perfilUsuario.postoGraduacao} ${perfilUsuario.nomeGuerra}!\n\nSeu encaixe foi registrado com sucesso!\n\nProtocolo: ${protocolo}\nMotivo: ${motivo}\n\nComareça imediatamente ao setor com sua documentação.\n\nAtenciosamente,\nCentral de Troca de Funcionais`,
+                corpo: `Olá, ${perfilUsuario.postoGraduacao} ${perfilUsuario.nomeGuerra}!\n\nSeu encaixe foi registrado com sucesso!\n\nProtocolo: ${protocolo}\nData e Hora: ${dataFormatada}\nMotivo: ${motivo}\n\nCompareça imediatamente ao setor com sua documentação.\n\nAtenciosamente,\nCentral de Troca de Funcionais`,
             });
         }
 
@@ -170,7 +200,7 @@ export async function getAgendamentos(): Promise<AgendamentoComPerfil[]> {
                 solicitanteId: agendamentos.solicitanteId,
                 postoGraduacao: usuariosInfo.postoGraduacao,
                 nomeGuerra: usuariosInfo.nomeGuerra,
-                numeroOficioSei: usuariosInfo.numeroOficioSei,
+                numeroOficioSei: agendamentos.numeroOficioSei,
             })
             .from(agendamentos)
             .leftJoin(usuariosInfo, eq(agendamentos.solicitanteId, usuariosInfo.id))

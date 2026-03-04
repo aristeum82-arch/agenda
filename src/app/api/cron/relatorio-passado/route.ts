@@ -60,9 +60,10 @@ export async function GET(req: Request) {
 
             // Envia e-mail real via Resend
             if (admin.email) {
-                const listaFormatada = realizados.map(r =>
-                    `- ${r.postoGraduacao ?? ""} ${r.nomeGuerra ?? ""} | ${format(new Date(r.dataHora), "EEE dd/MM HH:mm", { locale: ptBR })} | ${r.motivo}`
-                ).join("\n");
+                const listaFormatada = realizados.map(r => {
+                    const dt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(r.dataHora));
+                    return `- ${r.postoGraduacao ?? ""} ${r.nomeGuerra ?? ""} | ${dt} | ${r.motivo}`;
+                }).join("\n");
 
                 await enviarEmail({
                     para: admin.email,

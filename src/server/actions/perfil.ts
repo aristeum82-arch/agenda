@@ -30,7 +30,7 @@ const perfilSchema = z.object({
         "54 BPM-I",
         "55 BPM-I",
     ]),
-    numeroOficioSei: z.string().min(3, "Insira um ofício válido"),
+    // numeroOficioSei removed from profile; SEI belongs to agendamento
 });
 
 export async function getPerfilUsuario() {

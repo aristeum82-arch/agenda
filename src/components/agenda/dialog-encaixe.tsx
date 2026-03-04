@@ -30,21 +30,23 @@ export function DialogEncaixe() {
     const [motivo, setMotivo] = useState("");
     const [motivoPersonalizado, setMotivoPersonalizado] = useState("");
     const [porIntermedio, setPorIntermedio] = useState<"Sim" | "Não" | "">("");
+    const [numeroOficioSei, setNumeroOficioSei] = useState("");
     const [isPending, startTransition] = useTransition();
 
     const motivoFinal = motivo === "Outros" ? motivoPersonalizado : motivo;
-    const isValid = motivoFinal.length >= 2 && porIntermedio !== "";
+    const isValid = motivoFinal.length >= 2 && porIntermedio !== "" && numeroOficioSei.trim().length >= 3;
 
     function handleConfirmar() {
         if (!isValid) return;
         startTransition(async () => {
-            const res = await criarEncaixe(motivoFinal, porIntermedio === "Sim");
+            const res = await criarEncaixe(motivoFinal, porIntermedio === "Sim", numeroOficioSei.trim());
             if (res.success) {
                 toast.success(`${res.message} — Protocolo: ${res.protocolo}`);
                 setOpen(false);
                 setMotivo("");
                 setMotivoPersonalizado("");
                 setPorIntermedio("");
+                setNumeroOficioSei("");
             } else {
                 toast.error(res.message);
             }
@@ -110,6 +112,17 @@ export function DialogEncaixe() {
                                 <SelectItem value="Não">Não</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    {/* Número SEI */}
+                    <div className="space-y-2">
+                        <Label>Número do Ofício SEI</Label>
+                        <Input
+                            placeholder="Ex: SEI-123456/2026"
+                            value={numeroOficioSei}
+                            onChange={(e) => setNumeroOficioSei(e.target.value)}
+                            className="h-11"
+                        />
                     </div>
 
                     <div className="flex justify-end gap-3 pt-2">

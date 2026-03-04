@@ -43,6 +43,7 @@ const agendarSchema = z.object({
     porIntermedioServico: z.enum(["Sim", "Não"]),
     dataConsulta: z.date(),
     horarioISO: z.string().min(1, "Escolha um horário."),
+    numeroOficioSei: z.string().min(3, "Insira o número do ofício SEI."),
 }).refine(data => {
     if (data.motivo === "Outros" && (!data.motivoPersonalizado || data.motivoPersonalizado.length < 3)) {
         return false;
@@ -66,6 +67,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
     });
 
     const dataEscolhida = form.watch("dataConsulta");
+    const [popoverOpen, setPopoverOpen] = useState(false);
 
     // Busca slots de horários quando a data muda
     const buscarSlots = async (data: Date) => {
@@ -91,6 +93,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                 dataHora: dbDate,
                 motivo: motivoFinal,
                 porIntermedioServico: values.porIntermedioServico === "Sim",
+                numeroOficioSei: values.numeroOficioSei,
             });
 
             if (res.success) {
@@ -241,7 +244,7 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                         render={({ field }) => (
                                             <FormItem className="flex flex-col">
                                                 <FormLabel>Qual o dia deseja comparecer?</FormLabel>
-                                                <Popover>
+                                                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                                                     <PopoverTrigger asChild>
                                                         <FormControl>
                                                             <Button
@@ -261,17 +264,20 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                                         </FormControl>
                                                     </PopoverTrigger>
                                                     <PopoverContent className="w-auto p-0" align="start">
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={field.value}
-                                                            onSelect={(date) => {
-                                                                field.onChange(date);
-                                                                if (date) buscarSlots(date);
-                                                            }}
-                                                            disabled={isDateDisabled}
-                                                            initialFocus
-                                                            locale={ptBR}
-                                                        />
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={field.value}
+                                                                onSelect={(date) => {
+                                                                    field.onChange(date);
+                                                                    if (date) {
+                                                                        buscarSlots(date);
+                                                                        setPopoverOpen(false); // fecha o popover ao selecionar
+                                                                    }
+                                                                }}
+                                                                disabled={isDateDisabled}
+                                                                initialFocus
+                                                                locale={ptBR}
+                                                            />
                                                     </PopoverContent>
                                                 </Popover>
                                                 <FormMessage />
@@ -336,6 +342,21 @@ export default function AgendarForm({ perfil, isEncaixe = false }: { perfil: any
                                                             })}
                                                         </div>
                                                     )}
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    {/* Campo SEI */}
+                                    <FormField
+                                        control={form.control}
+                                        name="numeroOficioSei"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Número do Ofício SEI</FormLabel>
+                                                <FormControl>
+                                                    <Input className="h-12 text-base" placeholder="Ex: SEI-123456/2026" {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

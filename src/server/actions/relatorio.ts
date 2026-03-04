@@ -48,7 +48,7 @@ export async function gerarDadosRelatorio(
                 re: usuariosInfo.re,
                 nomeGuerra: usuariosInfo.nomeGuerra,
                 postoGraduacao: usuariosInfo.postoGraduacao,
-                numeroOficioSei: usuariosInfo.numeroOficioSei,
+                numeroOficioSei: agendamentos.numeroOficioSei,
             })
             .from(agendamentos)
             .leftJoin(usuariosInfo, eq(agendamentos.solicitanteId, usuariosInfo.id))

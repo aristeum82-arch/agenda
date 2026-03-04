@@ -75,7 +75,16 @@ export default async function AdminAgendamentosPage() {
                                                     {a.numeroOficioSei || "Sem ofício"}
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="text-xs text-slate-500">{a.solicitanteId.slice(0, 14)}...</TableCell>
+                                            <TableCell>
+                                                {a.postoGraduacao && a.nomeGuerra ? (
+                                                    <span>
+                                                        <span className="text-xs text-slate-500">{a.postoGraduacao} </span>
+                                                        <span className="font-semibold">{a.nomeGuerra}</span>
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">Sem perfil</span>
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">
                                                 {format(new Date(a.dataHora), "dd/MM/yyyy HH:mm")}
                                             </TableCell>

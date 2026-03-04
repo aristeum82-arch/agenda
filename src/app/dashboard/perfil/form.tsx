@@ -61,7 +61,6 @@ const perfilSchema = z.object({
     postoGraduacao: z.enum(POSTOS),
     nomeGuerra: z.string().min(2, "Campo obrigatório."),
     opm: z.enum(OPM_LIST),
-    numeroOficioSei: z.string().min(3, "Insira o número do ofício SEI."),
 });
 
 export default function PerfilForm({ dadosIniciais }: { dadosIniciais: any }) {
@@ -76,7 +75,6 @@ export default function PerfilForm({ dadosIniciais }: { dadosIniciais: any }) {
             postoGraduacao: (dadosIniciais?.postoGraduacao as typeof POSTOS[number]) || undefined,
             nomeGuerra: dadosIniciais?.nomeGuerra || "",
             opm: dadosIniciais?.opm || undefined,
-            numeroOficioSei: dadosIniciais?.numeroOficioSei || "",
         },
     });
 
@@ -165,6 +163,8 @@ export default function PerfilForm({ dadosIniciais }: { dadosIniciais: any }) {
                             />
                         </div>
 
+ 
+
                         <FormField
                             control={form.control}
                             name="opm"
@@ -185,20 +185,6 @@ export default function PerfilForm({ dadosIniciais }: { dadosIniciais: any }) {
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="numeroOficioSei"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Número do Ofício SEI</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Ex: SEI-123456/2026" {...field} />
-                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
